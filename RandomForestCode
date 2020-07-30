@@ -1,9 +1,9 @@
 setwd("Downloads")
-library(readr)
+
 trainForRF <- read.csv(file = "trainForRF.csv", stringsAsFactors = FALSE, header = TRUE)
 View(trainForRF)
-str(trainForRF)
-library(readr)
+
+
 testForRF <- read.csv(file = "testForRF.csv", stringsAsFactors = FALSE, header = TRUE)
 View(testForRF)
 
