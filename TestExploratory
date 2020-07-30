@@ -1,0 +1,28 @@
+# Set libPaths.
+.libPaths("/Users/sophiadhanani/.exploratory/R/3.6")
+
+# Load required packages.
+library(janitor)
+library(lubridate)
+library(hms)
+library(tidyr)
+library(stringr)
+library(readr)
+library(forcats)
+library(RcppRoll)
+library(dplyr)
+library(tibble)
+library(bit64)
+library(exploratory)
+
+# Steps to produce the output
+exploratory::select_columns(exploratory::clean_data_frame(exploratory::read_delim_file("/Users/sophiadhanani/Downloads/titanic/test.csv" , ",", quote = "\"", skip = 0 , col_names = TRUE , na = c('','NA') , locale=readr::locale(encoding = "UTF-8", decimal_mark = ".", tz = "America/New_York", grouping_mark = "," ), trim_ws = TRUE , progress = FALSE)),"PassengerId","Pclass","Name","Sex","Age","SibSp","Parch","Fare","Embarked") %>%
+  readr::type_convert() %>%
+  mutate(Age = impute_na(Age, type = "mean"), Agebracket = case_when(
+ Age <= 11 ~ "young",
+ Age <= 60 ~ "middle",
+ Age > 60 ~ "old") , Fare = impute_na(Fare, type = "mean")) %>%
+  mutate(Title = str_extract_inside(Name, begin = ",", end= ".")) %>%
+  mutate(FancyTitle = recode(Title, ` Mr` = "0", ` Mrs` = "0", ` Miss` = "0", ` Master` = "0", ` Ms` = "0", ` Col` = "1", ` Rev` = "1", ` Dr` = "1", ` Dona` = "1")) %>%
+  mutate(Married = case_when(str_detect(Name, "Miss") ~ 0, str_detect(Name, "Mrs") ~ 1), Married = factor(Married), FancyTitle = factor(FancyTitle), Agebracket = factor(Agebracket), Embarked = factor(Embarked), Sex = factor(Sex), Pclass = factor(Pclass)) %>%
+  mutate(Survived = "NA", Survived = factor(Survived), Survived = na_if(Survived, "NA"))
