@@ -1,0 +1,40 @@
+setwd("Downloads")
+library(readr)
+trainForRF <- read.csv(file = "trainForRF.csv", stringsAsFactors = FALSE, header = TRUE)
+View(trainForRF)
+str(trainForRF)
+library(readr)
+testForRF <- read.csv(file = "testForRF.csv", stringsAsFactors = FALSE, header = TRUE)
+View(testForRF)
+
+trainForRF$isTrainSet <- TRUE
+testForRF$isTrainSet <-FALSE
+
+combi <- rbind(testForRF, trainForRF)
+
+combi$Sex <- as.factor(combi$Sex)
+combi$Embarked <- as.factor(combi$Embarked)
+combi$Pclass <- as.factor(combi$Pclass)
+combi$Agebracket <- as.factor(combi$Agebracket)
+combi$Title <- as.factor(combi$Title)
+combi$Survived <- as.factor(combi$Survived)
+
+trainForRF <- combi[combi$isTrainSet == TRUE,]
+testForRF <- combi[combi$isTrainSet == FALSE,]
+
+str(testForRF)
+str(trainForRF)
+install.packages("randomForest")
+library(randomForest)
+survived.equation <- Survived ~ Embarked + Pclass + Agebracket + SibSp + Parch + Fare + Sex + Title
+survived.formula <- as.formula(survived.equation)
+
+model <- randomForest(formula = survived.formula, data = trainForRF, ntree = 500, mtry = 3, nodesize = .01 * nrow(trainForRF))
+features.equation <- "Embarked + Pclass + Agebracket + SibSp + Parch + Fare + Sex + Title"
+Survived <- predict(model, newdata = testForRF)
+
+PassengerId <- testForRF$PassengerId
+output <- as.data.frame(PassengerId)
+output$Survived <- Survived
+write.csv(output, file = "RFsubmission.csv", row.names = FALSE)
+View("RFSubmission.csv")
